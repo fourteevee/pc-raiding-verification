@@ -68,6 +68,8 @@ public class ReadyListener extends ListenerAdapter {
         dayToDelay.put(Calendar.SATURDAY, 1);
         dayToDelay.put(Calendar.SUNDAY, 0);
         int dayOfWeek = calendar.get(DAY_OF_WEEK);
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        int minuteOfDay = calendar.get(Calendar.MINUTE);
         int delayInDays = dayToDelay.get(dayOfWeek);
 
         Timer timer = new Timer();
@@ -107,7 +109,7 @@ public class ReadyListener extends ListenerAdapter {
                 StatsJson.resetWeekly();
 
             }
-        }, TimeUnit.DAYS.toMillis(delayInDays), TimeUnit.DAYS.toMillis(7));
+        }, TimeUnit.DAYS.toMillis(delayInDays), TimeUnit.DAYS.toMillis(7) - TimeUnit.HOURS.toMillis(hourOfDay) - TimeUnit.MINUTES.toMillis(minuteOfDay - 1));
     }
 
 }

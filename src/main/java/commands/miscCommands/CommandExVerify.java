@@ -116,17 +116,6 @@ public class CommandExVerify extends Command {
             NestBot.getGuild().addRoleToMember(msg.getMember(), NestBot.getGuild().getRoleById(Constants.EXTERMINATOR)).queue();
 
             String ignName = realmPlayer.getUsername();
-            try {
-                if (!ignName.equals(msg.getMember().getEffectiveName())){
-                    msg.getMember().modifyNickname(ignName).submit();
-                } else if (!ignName.toLowerCase().equals(msg.getMember().getEffectiveName())){
-                    msg.getMember().modifyNickname(ignName.toLowerCase()).submit();
-                } else {
-                    msg.getMember().modifyNickname(StringUtils.capitalize(ignName)).submit();
-                }
-            } catch ( Exception e ) {
-                e.printStackTrace();
-            }
             Verification.getVerificationRequests().remove(msg.getAuthor());
             Utils.sendPM(msg.getAuthor(), "Thank you for verifying in pest control! Good luck on the nest raids!");
             logVerification(msg.getAuthor(), ignName);

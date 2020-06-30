@@ -53,7 +53,7 @@ public class CommandQuota extends Command {
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Command: Quota");
-        embedBuilder.addField("Required rank", "Owner", false);
+        embedBuilder.addField("Required rank", "ARL", false);
         embedBuilder.addField("Syntax", "-alias @user", false);
         embedBuilder.addField("Aliases", aliases, false);
         embedBuilder.addField("Information", "Gets the run quotas of a specific user.", false);
