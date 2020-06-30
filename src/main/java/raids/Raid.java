@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static raids.RaidHub.RaidType;
 
@@ -166,6 +168,8 @@ public class Raid {
         this.finished = true;
         this.failed = true;
 
+        logRaid("aborted");
+
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(leader.getEffectiveName() + "'s raid was a failure!");
         embedBuilder.setThumbnail(leader.getUser().getAvatarUrl());
@@ -179,7 +183,7 @@ public class Raid {
         this.raidActive = false;
         raidRoom.getMembers().stream().forEach(member -> StatsJson.addCompletedRaid(member.getId()));
         FeedbackHub.activeFeedback.add(new LeaderFeedback(leader, raidRoom.getMembers()));
-        logRaid(playersLeft);
+        logRaid("success");
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(leader.getEffectiveName() + "'s raid was a success!");
@@ -195,7 +199,11 @@ public class Raid {
             TIMER.schedule(this::endRaid, 20L, TimeUnit.SECONDS);
     }
 
-    private void logRaid(int players) {
+    /**
+     * Status: success, aborted
+     * @param status
+     */
+    private void logRaid(String status) {
         String playerNames = "";
         for (Member member : getRaidRoom().getMembers()){
             String removePrefix = "";
@@ -235,7 +243,11 @@ public class Raid {
         playerNames = playerNames.replaceFirst(", ", "");
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(leader.getEffectiveName() + " completed a raid!");
+        if (status.equalsIgnoreCase("success")){
+            embedBuilder.setTitle(leader.getEffectiveName() + " completed a raid!");
+        } else if (status.equalsIgnoreCase("aborted")){
+            embedBuilder.setTitle(leader.getEffectiveName() + " aborted a raid!");
+        }
         embedBuilder.setDescription("Date Completed: " + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()) +
                 "\nTime Taken: " + Utils.formatTimeFull(System.currentTimeMillis() - startTime) +
                 "\nPlayers remaining in run (" + getRaidRoom().getMembers().size() + "): " + playerNames);
@@ -424,19 +436,19 @@ public class Raid {
 
     /**
      * @param location
-     * @param notify If true it will notify all users that reacted with NEST_KEY that a new location has been set
+     * @param notify If true it will notify all users that already reacted and got the *old* location
      */
     public void setLocation(String location, boolean notify) {
         this.location = location;
         if (notify) {
-            this.raidMsg.retrieveReactionUsers(Emote.NEST_KEY.getEmote()).queue(users -> {
-                users.stream().filter(user -> !user.isBot()).forEach(user -> {
-                    try {
-                        user.openPrivateChannel().submit().get().sendMessage("A location has been set for " + this.leader.getEffectiveName() + "'s raid: **" + location + "**").submit();
-                    } catch ( InterruptedException | ExecutionException e ) {
-                        e.printStackTrace();
-                    }
-                });
+            Stream.of(nestKeyReactions, eventKeyReactions, knightReactions, mysticReactions, puriReactions, nitroReactions)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList()).stream().filter(member -> !member.getUser().isBot()).forEach(member -> {
+                try {
+                    member.getUser().openPrivateChannel().submit().get().sendMessage("A location has been set for " + this.leader.getEffectiveName() + "'s raid: **" + location + "**").submit();
+                } catch ( InterruptedException | ExecutionException e ) {
+                    e.printStackTrace();
+                }
             });
         }
     }

@@ -79,8 +79,8 @@ public class CommandExVerify extends Command {
         boolean hasMain = false; // stats_maxed equal 8 on atleast one character
         boolean hasSecond = false; // stats_maxed equal 6 or higher on atleast one character thats not main character
         for (Character character : characters) {
-            String[] validCharacters = new String[]{"knight", "warrior", "paladin"};
-            if (ArrayUtils.contains(validCharacters, character.getName().toLowerCase())) {
+            String[] meleeCharacters = new String[]{"knight", "warrior", "paladin"};
+            if (ArrayUtils.contains(meleeCharacters, character.getName().toLowerCase())) {
                 if (character.getStats_maxed() >= 6) {
                     if (character.getStats_maxed() == 8 && !hasMain){
                         hasMain = true;
@@ -88,8 +88,23 @@ public class CommandExVerify extends Command {
                         hasSecond = true;
                     }
                 }
+            } else {
+                if (character.getStats_maxed() >= 6) {
+                    hasSecond = true;
+                }
             }
         }
+
+        /*
+        * if (character.getStats_maxed() >= 6) {
+            if (ArrayUtils.contains(validCharacters, character.getName().toLowerCase())) {
+                            if (character.getStats_maxed() == 8 && !hasMain){
+                                    hasMain = true;
+                        } else {
+                            hasSecond = true;
+                    }
+                }
+        * */
 
         if (!hasMain || !hasSecond) {
             Utils.sendPM(msg.getAuthor(), "You do not have the classes required to verify!");
