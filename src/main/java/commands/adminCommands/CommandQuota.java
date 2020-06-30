@@ -17,7 +17,7 @@ import java.util.Date;
 public class CommandQuota extends Command {
     public CommandQuota() {
         setAliases(new String[] {"quota"});
-        setMinRank(Rank.OWNER);
+        setMinRank(Rank.ALMOST_RL);
     }
 
     @Override
