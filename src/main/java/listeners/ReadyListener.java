@@ -81,7 +81,7 @@ public class ReadyListener extends ListenerAdapter {
 
                 for (Member member : NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole())){
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY)){
-                        long exrl_quota = StatsJson.getQuota(member.getId(), "EXRL_QUOTA");
+                        long exrl_quota = StatsJson.getAllQuota(member.getId());
                         if (exrl_quota < Long.parseLong((String) Config.get("EXRL_QUOTA"))){
                             quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [EXRL] " + member.getAsMention() + "** hasn't completed " + Config.get("EXRL_QUOTA") + " runs!** Runs completed: " + exrl_quota).queue();
                         }
@@ -90,7 +90,7 @@ public class ReadyListener extends ListenerAdapter {
 
                 for (Member member : NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole())){
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && !member.getRoles().contains(Rank.EX_RL.getRole())){
-                        long rl_quota = StatsJson.getQuota(member.getId(), "RL_QUOTA");
+                        long rl_quota = StatsJson.getAllQuota(member.getId());
                         if (rl_quota < Long.parseLong((String) Config.get("RL_QUOTA"))){
                             quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [RL] " + member.getAsMention() + "** hasn't completed " + Config.get("RL_QUOTA") + " runs!** Runs completed: " + rl_quota).queue();
                         }
@@ -99,7 +99,7 @@ public class ReadyListener extends ListenerAdapter {
 
                 for (Member member : NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole())){
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && !member.getRoles().contains(Rank.EX_RL.getRole()) && !member.getRoles().contains(Rank.RL.getRole())){
-                        long arl_quota = StatsJson.getQuota(member.getId(), "ARL_QUOTA");
+                        long arl_quota = StatsJson.getAllQuota(member.getId());
                         if (arl_quota < Long.parseLong((String) Config.get("ARL_QUOTA"))){
                             quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [ARL] " + member.getAsMention() + "** hasn't completed " + Config.get("ARL_QUOTA") + " runs!** Runs completed: " + arl_quota).queue();
                         }

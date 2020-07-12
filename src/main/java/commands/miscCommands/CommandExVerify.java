@@ -1,5 +1,6 @@
 package commands.miscCommands;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import commands.Command;
 import main.Constants;
 import main.NestBot;
@@ -29,7 +30,7 @@ public class CommandExVerify extends Command {
 
     @Override
     public void execute(Message msg, String alias, String[] args) {
-        if (msg.getMember().getRoles().contains(NestBot.getGuild().getRoleById(Constants.EXTERMINATOR))) {
+        if (NestBot.getGuild().getMember(msg.getAuthor()).getRoles().contains(NestBot.getGuild().getRoleById(Constants.EXTERMINATOR))) {
             Utils.sendPM(msg.getAuthor(), "You're already ex-verified silly!");
             return;
         }
@@ -45,8 +46,8 @@ public class CommandExVerify extends Command {
             Utils.sendPM(msg.getAuthor(), "Thank you for verifying your account on pest control!\n" +
                     "Your verification code is: " + vericode +
                     "\nPlace the verification code in any of your realmeye description bars.\n" +
-                    "Once you have saved the code to your realmeye description type -exverify [realmeye name].\n" +
-                    "You can verify in the verification channel! Realm eye names are NOT case-sensitive!");
+                    "Once you have saved the code to your realmeye description type -exverify [realmeye name]." +
+                    "**Do this in the " + NestBot.getGuild().getTextChannelById(Constants.EXVERIFY_CHANNEL).getAsMention() + " channel, not the bot's DMs!!** Realm eye names are NOT case-sensitive!");
             return;
         }
 
@@ -117,7 +118,7 @@ public class CommandExVerify extends Command {
 
             String ignName = realmPlayer.getUsername();
             Verification.getVerificationRequests().remove(msg.getAuthor());
-            Utils.sendPM(msg.getAuthor(), "Thank you for verifying in pest control! Good luck on the nest raids!");
+            Utils.sendPM(msg.getAuthor(), "Thank you for verifying in pest control! Please read the raiding rules before you join any runs! Good luck on the nest raids!");
             logVerification(msg.getAuthor(), ignName);
             return;
         }

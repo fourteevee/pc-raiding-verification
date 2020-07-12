@@ -226,8 +226,7 @@ public class StatsJson {
         return 0L;
     }
 
-
-    public static void incrementQuota(String userId, String quota){
+    public static long getAllQuota(String userId){
         createUser(userId);
         try {
             JSONParser parser = new JSONParser();
@@ -239,7 +238,31 @@ public class StatsJson {
                 JSONObject userObj = (JSONObject) obj.get(userId);
                 JSONObject runQuota = (JSONObject) userObj.get("runQuota");
 
-                runQuota.put(quota, getQuota(userId, quota) + 1L);
+                return (long) runQuota.get("ARL_QUOTA") + (long) runQuota.get("RL_QUOTA") + (long) runQuota.get("EXRL_QUOTA");
+
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        } catch ( Exception ex ) {
+            ex.printStackTrace();
+        }
+        return 0L;
+    }
+
+
+    public static void incrementQuota(String userId, String quota, long amount){
+        createUser(userId);
+        try {
+            JSONParser parser = new JSONParser();
+
+            try ( Reader reader = new FileReader(path) ) {
+
+                JSONObject obj = (JSONObject) parser.parse(reader);
+
+                JSONObject userObj = (JSONObject) obj.get(userId);
+                JSONObject runQuota = (JSONObject) userObj.get("runQuota");
+
+                runQuota.put(quota, getQuota(userId, quota) + amount);
 
                 userObj.put("runQuota", runQuota);
                 obj.put(userId, userObj);

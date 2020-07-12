@@ -70,6 +70,7 @@ public class Raid {
 
     public void initializeRaid() {
         this.failed = false;
+        this.isFullSkipped = false;
         this.raidActive = false;
         raidMsg.delete().queue();
 
@@ -92,6 +93,10 @@ public class Raid {
 
         if (this.raidType.equals(RaidType.EXRL_RAID)) {
             eligibleRole = NestBot.getGuild().getRoleById(Constants.EXTERMINATOR);
+        } else if (this.raidType.equals(RaidType.WR_RAID)) {
+            eligibleRole = NestBot.getGuild().getRoleById(Constants.WR_RAIDER);
+        } else if (this.raidType.equals(RaidType.EVENT_RAID)) {
+            eligibleRole = NestBot.getGuild().getRoleById(Constants.EVENT_RAIDER);
         }
 
         raidRoom.getPermissionOverrides().stream().forEach(permissionOverride -> permissionOverride.delete().complete());
@@ -123,7 +128,7 @@ public class Raid {
             quota = "RL_QUOTA";
         }
 
-        StatsJson.incrementQuota(leader.getId(), quota);
+        StatsJson.incrementQuota(leader.getId(), quota, 1L);
     }
 
     public void startRaid() {
@@ -251,76 +256,149 @@ public class Raid {
         embedBuilder.setDescription("Date Completed: " + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()) +
                 "\nTime Taken: " + Utils.formatTimeFull(System.currentTimeMillis() - startTime) +
                 "\nPlayers remaining in run (" + getRaidRoom().getMembers().size() + "): " + playerNames);
+
         String nestUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.NEST.getEmote()).complete()){
+        List<User> nestReactions = raidMsg.retrieveReactionUsers(Emote.NEST.getEmote()).complete();
+        for (int i = 0; i < nestReactions.size(); i++) {
+            User user = nestReactions.get(i);
             if (!user.isBot()) {
-                nestUsers += user.getAsMention() + "\n";
+                if ((nestUsers.length() + user.getAsMention().length()) >= 1000){
+                    nestUsers += "And " + (nestReactions.size() - i - 1) + " others...";
+                } else {
+                    nestUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String nestKeyUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.NEST_KEY.getEmote()).complete()){
+        List<User> nestKeyReactions = raidMsg.retrieveReactionUsers(Emote.NEST_KEY.getEmote()).complete();
+        for (int i = 0; i < nestKeyReactions.size(); i++) {
+            User user = nestKeyReactions.get(i);
             if (!user.isBot()) {
-                nestKeyUsers += user.getAsMention() + "\n";
+                if ((nestKeyUsers.length() + user.getAsMention().length()) >= 1000){
+                    nestKeyUsers += "And " + (nestKeyReactions.size() - i - 1) + " others...";
+                } else {
+                    nestKeyUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String qotUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.QOT.getEmote()).complete()){
+        List<User> qotReactions = raidMsg.retrieveReactionUsers(Emote.QOT.getEmote()).complete();
+        for (int i = 0; i < qotReactions.size(); i++) {
+            User user = qotReactions.get(i);
             if (!user.isBot()) {
-                qotUsers += user.getAsMention() + "\n";
+                if ((qotUsers.length() + user.getAsMention().length()) >= 1000){
+                    qotUsers += "And " + (qotReactions.size() - i - 1) + " others...";
+                } else {
+                    qotUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String priestUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.PRIEST.getEmote()).complete()){
+        List<User> priestReactions = raidMsg.retrieveReactionUsers(Emote.PRIEST.getEmote()).complete();
+        for (int i = 0; i < priestReactions.size(); i++) {
+            User user = priestReactions.get(i);
             if (!user.isBot()) {
-                priestUsers += user.getAsMention() + "\n";
+                if ((priestUsers.length() + user.getAsMention().length()) >= 1000){
+                    priestUsers += "And " + (priestReactions.size() - i - 1) + " others...";
+                } else {
+                    priestUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String warriorUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.WARRIOR.getEmote()).complete()){
+        List<User> warriorReactions = raidMsg.retrieveReactionUsers(Emote.WARRIOR.getEmote()).complete();
+        for (int i = 0; i < warriorReactions.size(); i++) {
+            User user = warriorReactions.get(i);
             if (!user.isBot()) {
-                warriorUsers += user.getAsMention() + "\n";
+                if ((warriorUsers.length() + user.getAsMention().length()) >= 1000){
+                    warriorUsers += "And " + (warriorReactions.size() - i - 1) + " others...";
+                } else {
+                    warriorUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String pallyUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.PALLY.getEmote()).complete()){
+        List<User> pallyReactions = raidMsg.retrieveReactionUsers(Emote.PALLY.getEmote()).complete();
+        for (int i = 0; i < pallyReactions.size(); i++) {
+            User user = pallyReactions.get(i);
             if (!user.isBot()) {
-                pallyUsers += user.getAsMention() + "\n";
+                if ((pallyUsers.length() + user.getAsMention().length()) >= 1000){
+                    pallyUsers += "And " + (pallyReactions.size() - i - 1) + " others...";
+                } else {
+                    pallyUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String knightUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.KNIGHT.getEmote()).complete()){
+        List<User> knightReactions = raidMsg.retrieveReactionUsers(Emote.KNIGHT.getEmote()).complete();
+        for (int i = 0; i < knightReactions.size(); i++) {
+            User user = knightReactions.get(i);
             if (!user.isBot()) {
-                knightUsers += user.getAsMention() + "\n";
+                if ((knightUsers.length() + user.getAsMention().length()) >= 1000){
+                    knightUsers += "And " + (knightReactions.size() - i - 1) + " others...";
+                } else {
+                    knightUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String mysticUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.MYSTIC.getEmote()).complete()){
+        List<User> mysticReactions = raidMsg.retrieveReactionUsers(Emote.MYSTIC.getEmote()).complete();
+        for (int i = 0; i < mysticReactions.size(); i++) {
+            User user = mysticReactions.get(i);
             if (!user.isBot()) {
-                mysticUsers += user.getAsMention() + "\n";
+                if ((mysticUsers.length() + user.getAsMention().length()) >= 1000){
+                    mysticUsers += "And " + (mysticReactions.size() - i - 1) + " others...";
+                } else {
+                    mysticUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String slowUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.SLOW.getEmote()).complete()){
+        List<User> slowReactions = raidMsg.retrieveReactionUsers(Emote.SLOW.getEmote()).complete();
+        for (int i = 0; i < slowReactions.size(); i++) {
+            User user = slowReactions.get(i);
             if (!user.isBot()) {
-                slowUsers += user.getAsMention() + "\n";
+                if ((slowUsers.length() + user.getAsMention().length()) >= 1000){
+                    slowUsers += "And " + (slowReactions.size() - i - 1) + " others...";
+                } else {
+                    slowUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String nitroUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.NITRO.getEmote()).complete()){
+        List<User> nitroReactions = raidMsg.retrieveReactionUsers(Emote.NITRO.getEmote()).complete();
+        for (int i = 0; i < nitroReactions.size(); i++) {
+            User user = nitroReactions.get(i);
             if (!user.isBot()) {
-                nitroUsers += user.getAsMention() + "\n";
+                if ((nitroUsers.length() + user.getAsMention().length()) >= 1000){
+                    nitroUsers += "And " + (nitroReactions.size() - i - 1) + " others...";
+                } else {
+                    nitroUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String dungeonUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.DUNGEON.getEmote()).complete()){
+        List<User> dungeonReactions = raidMsg.retrieveReactionUsers(Emote.DUNGEON.getEmote()).complete();
+        for (int i = 0; i < dungeonReactions.size(); i++) {
+            User user = dungeonReactions.get(i);
             if (!user.isBot()) {
-                dungeonUsers += user.getAsMention() + "\n";
+                if ((dungeonUsers.length() + user.getAsMention().length()) >= 1000){
+                    dungeonUsers += "And " + (dungeonReactions.size() - i - 1) + " others...";
+                } else {
+                    dungeonUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String eventKeyUsers = "";
-        for (User user : raidMsg.retrieveReactionUsers(Emote.EVENT_KEY.getEmote()).complete()){
+        List<User> eventKeyReactions = raidMsg.retrieveReactionUsers(Emote.EVENT_KEY.getEmote()).complete();
+        for (int i = 0; i < eventKeyReactions.size(); i++) {
+            User user = eventKeyReactions.get(i);
             if (!user.isBot()) {
-                eventKeyUsers += user.getAsMention() + "\n";
+                if ((eventKeyUsers.length() + user.getAsMention().length()) >= 1000){
+                    eventKeyUsers += "And " + (eventKeyReactions.size() - i - 1) + " others...";
+                } else {
+                    eventKeyUsers += user.getAsMention() + "\n";
+                }
             }
         }
 
@@ -472,7 +550,8 @@ public class Raid {
                 public void run() {
                     int yesVotes = 0;
                     int noVotes = 0;
-                    for (MessageReaction mr : fullSkipPoll.getReactions()){
+                    final Message finalFullSkipPoll = fullSkipPoll.getTextChannel().retrieveMessageById(fullSkipPoll.getId()).complete();
+                    for (MessageReaction mr : finalFullSkipPoll.getReactions()){
                         if (mr.getReactionEmote().isEmoji() && mr.getReactionEmote().getEmoji().equals("\uD83D\uDC4D")){
                             yesVotes = mr.getCount();
                         } else if (mr.getReactionEmote().isEmoji() && mr.getReactionEmote().getEmoji().equals("👎")){
@@ -485,19 +564,20 @@ public class Raid {
 
                     if (success){
                         Utils.sendPM(leader.getUser(), "The fullskip vote has passed!");
-                        fullSkipPoll.editMessage(new EmbedBuilder(fullSkipPoll.getEmbeds().get(0)).setDescription("The fullskip vote has passed!")
+                        finalFullSkipPoll.editMessage(new EmbedBuilder(finalFullSkipPoll.getEmbeds().get(0)).setDescription("The fullskip vote has passed!")
                                 .setColor(Color.green)
-                                .addField("👍", String.valueOf(yesVotes), true)
-                                .addField("👎", String.valueOf(noVotes), true).build()).queue();
+                                .addField("👍", String.valueOf(yesVotes - 1), true)
+                                .addField("👎", String.valueOf(noVotes - 1), true).build()).queue();
+                        fullSkip();
                     } else {
                         Utils.sendPM(leader.getUser(), "The fullskip vote has failed!");
-                        fullSkipPoll.editMessage(new EmbedBuilder(fullSkipPoll.getEmbeds().get(0)).setDescription("The fullskip vote has failed!")
+                        finalFullSkipPoll.editMessage(new EmbedBuilder(finalFullSkipPoll.getEmbeds().get(0)).setDescription("The fullskip vote has failed!")
                                 .setColor(Color.red)
                                 .addField("👍", String.valueOf(yesVotes), true)
                                 .addField("👎", String.valueOf(noVotes), true).build()).queue();
                     }
 
-                    fullSkipPoll.delete().queueAfter(2, TimeUnit.MINUTES);
+                    finalFullSkipPoll.delete().queueAfter(2, TimeUnit.MINUTES);
                 }
             }, TimeUnit.MINUTES.toMillis(minutes));
         } else {

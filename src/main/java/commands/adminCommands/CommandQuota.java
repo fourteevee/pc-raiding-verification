@@ -35,11 +35,8 @@ public class CommandQuota extends Command {
         Member member = msg.getMentionedMembers().get(0);
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        long rl_quota = StatsJson.getQuota(member.getId(), "RL_QUOTA");
-        long exrl_quota = StatsJson.getQuota(member.getId(), "EXRL_QUOTA");
-        long arl_quota = StatsJson.getQuota(member.getId(), "ARL_QUOTA");
         embedBuilder.setTitle(member.getEffectiveName() + "'s run quota")
-                .addField("QUOTA", String.valueOf(Math.max(Math.max(rl_quota, exrl_quota), arl_quota)), false);
+                .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false);
 
         Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
 

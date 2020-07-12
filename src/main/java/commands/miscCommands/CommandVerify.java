@@ -29,7 +29,7 @@ public class CommandVerify extends Command {
 
     @Override
     public void execute(Message msg, String alias, String[] args) {
-        if (msg.getMember().getRoles().contains(NestBot.getGuild().getRoleById(Constants.VERIFIED))) {
+        if (NestBot.getGuild().getMember(msg.getAuthor()).getRoles().contains(NestBot.getGuild().getRoleById(Constants.VERIFIED))) {
             Utils.sendPM(msg.getAuthor(), "You're already verified silly!");
             return;
         }
@@ -46,7 +46,7 @@ public class CommandVerify extends Command {
                     "Your verification code is: " + vericode +
                     "\nPlace the verification code in any of your realmeye description bars.\n" +
                     "Once you have saved the code to your realmeye description type -verify [realmeye name].\n" +
-                    "You can verify in the verification channel! Realm eye names are NOT case-sensitive!");
+                    "**Do this in the " + NestBot.getGuild().getTextChannelById(Constants.VERIFY_CHANNEL).getAsMention() + " channel, not the bot's DMs!!** Realm eye names are NOT case-sensitive!");
             return;
         }
 
@@ -112,7 +112,7 @@ public class CommandVerify extends Command {
                 msg.getMember().modifyNickname(StringUtils.capitalize(ignName)).submit();
             }
             Verification.getVerificationRequests().remove(msg.getAuthor());
-            Utils.sendPM(msg.getAuthor(), "Thank you for verifying in pest control! Good luck on the nest raids!");
+            Utils.sendPM(msg.getAuthor(), "Thank you for verifying in pest control! Please read the raiding rules before you join any runs! Good luck on the nest raids!");
             logVerification(msg.getAuthor(), ignName);
             return;
         }

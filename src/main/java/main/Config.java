@@ -62,6 +62,8 @@ public class Config {
                 conf.addProperty("SUSPENDED", "");
                 conf.addProperty("VERIFIED", "");
                 conf.addProperty("EXTERMINATOR", "");
+                conf.addProperty("WR_RAIDER", "");
+                conf.addProperty("EVENT_RAIDER", "");
 
                 conf.addProperty("NEST", "");
                 conf.addProperty("DUNGEON", "");

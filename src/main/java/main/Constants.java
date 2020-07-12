@@ -37,5 +37,7 @@ public class Constants {
     public static final Long SUSPENDED =            Long.parseLong((String) Config.get("SUSPENDED"));
     public static final Long VERIFIED =             Long.parseLong((String) Config.get("VERIFIED"));
     public static final Long EXTERMINATOR  =        Long.parseLong((String) Config.get("EXTERMINATOR"));
+    public static final Long WR_RAIDER  =        Long.parseLong((String) Config.get("WR_RAIDER"));
+    public static final Long EVENT_RAIDER  =        Long.parseLong((String) Config.get("EVENT_RAIDER"));
 
 }

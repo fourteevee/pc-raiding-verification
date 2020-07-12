@@ -69,16 +69,25 @@ public class ReactionListener extends ListenerAdapter {
                             } else if (!raid.getRaidType().equals(RaidHub.RaidType.WR_RAID)) {
                                 if (emote == Emote.EVENT_KEY.getEmote()) {
                                     if (raid.getEventKeyReactions().size() < Long.parseLong((String) Config.get("MAX_LOCATION_REACTS"))) {
-                                        if (member.getTimeBoosted() == null) {
-                                            Utils.sendPM(member.getUser(), "This feature is unavailable. You are currently not boosting our server.");
-                                            event.getReaction().removeReaction(member.getUser()).queue();
-                                        } else {
-                                            if (raid.getNitroReactions().size() == 0){
-                                                StatsJson.addKeysPopped(member.getId());
+                                        Message privateMessage = Utils.sendPM(member.getUser(), "Did you intend to react with " + Emote.EVENT_KEY.getEmote().getAsMention()
+                                                + "? If you react to this without having a nest key you will be suspended");
+
+                                        privateMessage.addReaction("\u2705").queue();
+                                        privateMessage.addReaction("\u274C").queue();
+
+                                        eventWaiter.waitForEvent(PrivateMessageReactionAddEvent.class, e -> {
+                                            return e.getMessageId().equals(privateMessage.getId()) && !e.getUser().isBot()
+                                                    && e.getReactionEmote().isEmoji() && (e.getReactionEmote().getEmoji().equals("\u2705") || e.getReactionEmote().getEmoji().equals("\u274C"));
+                                        }, e -> {
+                                            if (e.getReactionEmote().isEmoji() && (e.getReactionEmote().getEmoji().equals("\u2705"))) {
+                                                if (raid.getEventKeyReactions().size() == 0){
+                                                    StatsJson.addKeysPopped(e.getUserId());
+                                                }
+                                                Utils.sendPM(member.getUser(), "**Location:** " + raid.getLocation());
                                             }
-                                            Utils.sendPM(member.getUser(), "**Location:** " + raid.getLocation());
-                                            raid.getNitroReactions().add(member);
-                                        }
+                                            raid.getEventKeyReactions().add(member);
+                                        }, 1, TimeUnit.HOURS, () -> {
+                                        });
                                     }
                                 } else if (emote == Emote.NITRO.getEmote()) {
                                     if (raid.getNitroReactions().size() < Long.parseLong((String) Config.get("MAX_LOCATION_REACTS"))) {

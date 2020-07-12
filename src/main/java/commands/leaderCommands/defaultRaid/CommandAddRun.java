@@ -5,6 +5,7 @@ import main.Rank;
 import main.StatsJson;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import org.apache.commons.lang.math.NumberUtils;
 import raids.Raid;
 import raids.RaidHub;
 import utils.Utils;
@@ -38,7 +39,15 @@ public class CommandAddRun extends Command {
             quota = "RL_QUOTA";
         }
 
-        StatsJson.incrementQuota(msg.getMember().getId(), quota);
+        if (args.length == 1){
+            if (NumberUtils.isDigits(args[0])){
+                StatsJson.incrementQuota(msg.getMember().getId(), quota, Long.parseLong(args[0]));
+                Utils.sendPM(msg.getAuthor(), args[0] + " runs have been added");
+                return;
+            }
+        }
+
+        StatsJson.incrementQuota(msg.getMember().getId(), quota, 1);
         Utils.sendPM(msg.getAuthor(), "Run has been added");
     }
 
