@@ -34,6 +34,7 @@ public class Raid {
     private ArrayList<Member> mysticReactions = new ArrayList<>();
     private ArrayList<Member> puriReactions = new ArrayList<>();
     private ArrayList<Member> nitroReactions = new ArrayList<>();
+    private ArrayList<Member> assistReactions = new ArrayList<>();
 
     private VoiceChannel raidRoom;
     private Message raidMsg;
@@ -81,6 +82,7 @@ public class Raid {
         mysticReactions = new ArrayList<>();
         puriReactions = new ArrayList<>();
         nitroReactions = new ArrayList<>();
+        assistReactions = new ArrayList<>();
 
 
         countdown = countdownTime;
@@ -208,7 +210,7 @@ public class Raid {
      * Status: success, aborted
      * @param status
      */
-    private void logRaid(String status) {
+    public void logRaid(String status) {
         String playerNames = "";
         for (Member member : getRaidRoom().getMembers()){
             String removePrefix = "";
@@ -377,6 +379,27 @@ public class Raid {
                 }
             }
         }
+        String assistUsers = "";
+        List<User> assistReactions = raidMsg.retrieveReactionUsers(Emote.ASSIST.getEmote()).complete();
+        for (int i = 0; i < assistReactions.size(); i++) {
+            User user = assistReactions.get(i);
+            if (!user.isBot()) {
+                String Assists = "SEC_ASSISTS";
+                    if (NestBot.getGuild().getMembersWithRoles(Rank.OFFICER.getRole()).contains(user)){
+                        Assists = "OFFICER_ASSISTS";
+                        if (NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(user)){
+                            Assists = "ARL_ASSISTS";
+                        } if (NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(user)){
+                            Assists = "RL_ASSISTS";
+                            if (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(user)){
+                                Assists = "EXRL_ASSISTS";
+                            }
+                        }
+                    }
+                    StatsJson.incrementAssists(user.getId(), Assists, 1L);
+             assistUsers += user.getAsMention() + "\n";
+            }
+        }
         String dungeonUsers = "";
         List<User> dungeonReactions = raidMsg.retrieveReactionUsers(Emote.DUNGEON.getEmote()).complete();
         for (int i = 0; i < dungeonReactions.size(); i++) {
@@ -412,8 +435,10 @@ public class Raid {
         embedBuilder.addField(Emote.MYSTIC.display(), mysticUsers.isEmpty() ? "No users" : mysticUsers, true);
         embedBuilder.addField(Emote.SLOW.display(), slowUsers.isEmpty() ? "No users" : slowUsers, true);
         embedBuilder.addField(Emote.NITRO.display(), nitroUsers.isEmpty() ? "No users" : nitroUsers, true);
+        embedBuilder.addField(Emote.ASSIST.display(), assistUsers.isEmpty() ? "No users" : assistUsers, true);
         embedBuilder.addField(Emote.DUNGEON.display(), dungeonUsers.isEmpty() ? "No users" : dungeonUsers, true);
         embedBuilder.addField(Emote.EVENT_KEY.display(), eventKeyUsers.isEmpty() ? "No users" : eventKeyUsers, true);
+
 
         Utils.sendEmbed(NestBot.getGuild().getTextChannelById(Constants.RUN_LOGS), embedBuilder);
     }
@@ -496,6 +521,7 @@ public class Raid {
             embedBuilder.addField("If you are bringing a MYSTIC react with", Emote.MYSTIC.display(), true);
             embedBuilder.addField("If you are bringing a SLOWING ABILITY react with", Emote.SLOW.display(), true);
             embedBuilder.addField("If you are a nitro booster, and want early location, react with", Emote.NITRO.display(), true);
+            embedBuilder.addField("If you are a leader or security assisting in the run, react with", Emote.ASSIST.display(), true);
         }
 
         if (countdown < 0)
@@ -519,7 +545,7 @@ public class Raid {
     public void setLocation(String location, boolean notify) {
         this.location = location;
         if (notify) {
-            Stream.of(nestKeyReactions, eventKeyReactions, knightReactions, mysticReactions, puriReactions, nitroReactions)
+            Stream.of(nestKeyReactions, eventKeyReactions, knightReactions, mysticReactions, puriReactions, nitroReactions, assistReactions)
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList()).stream().filter(member -> !member.getUser().isBot()).forEach(member -> {
                 try {
@@ -622,7 +648,8 @@ public class Raid {
         Emote.MYSTIC,
         Emote.PURI,
         Emote.SLOW,
-        Emote.NITRO
+        Emote.NITRO,
+        Emote.ASSIST
     };
     public static Emote[] wrRaidEmotes = new Emote[]{
         Emote.NEST,

@@ -30,6 +30,7 @@ public class CommandStartRaid extends Command {
 
             if (!raid.isFinished() && raid.isRaidActive()) {
                 if (args.length == 0) {
+                    raid.logRaid("success");
                     raid.initializeRaid();
                     return;
                 }
