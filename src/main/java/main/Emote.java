@@ -22,7 +22,9 @@ public enum Emote {
     MYSTIC(":Mystic:", Long.parseLong((String) Config.get("MYSTIC"))),
     PURI(":Purification:", Long.parseLong((String) Config.get("PURI"))),
     SLOW(":Slow:", Long.parseLong((String) Config.get("SLOW"))),
-    NITRO(":Nitro:", Long.parseLong((String) Config.get("NITRO")));
+    NITRO(":Nitro:", Long.parseLong((String) Config.get("NITRO"))),
+    ASSIST(":Assist:", Long.parseLong((String) Config.get("ASSIST")));
+
 
     private String emoteName;
     private Long ID;

@@ -1,20 +1,14 @@
 package main;
 
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.PropertiesConfigurationLayout;
-import org.apache.commons.lang3.ArrayUtils;
 import utils.Utils;
 
-import javax.security.auth.login.CredentialException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 public class Config {
 
@@ -78,6 +72,7 @@ public class Config {
                 conf.addProperty("PURI", "");
                 conf.addProperty("SLOW", "");
                 conf.addProperty("NITRO", "");
+                conf.addProperty("ASSIST", "");
 
                 conf.addProperty("TRIAL_RL", "");
                 conf.addProperty("ALMOST_RL", "");
@@ -97,6 +92,12 @@ public class Config {
                 conf.addProperty("EXRL_QUOTA", 5L);
                 conf.addProperty("RL_QUOTA", 5L);
                 conf.addProperty("ARL_QUOTA", 5L);
+
+                conf.addProperty("SEC_ASSISTS", 6L);
+                conf.addProperty("OFFICER_ASSISTS", 4L);
+                conf.addProperty("EXRL_ASSISTS", 0L);
+                conf.addProperty("RL_ASSISTS", 0L);
+                conf.addProperty("ARL_ASSISTS", 0L);
 
                 conf.save();
 

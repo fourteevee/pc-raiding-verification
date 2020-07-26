@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 import punishment.BlacklistManager;
 import utils.Utils;
 
+import java.security.Security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,11 +35,30 @@ public class CommandQuota extends Command {
 
         Member member = msg.getMentionedMembers().get(0);
 
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(member.getEffectiveName() + "'s run quota")
-                .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false);
+        if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(member)|| NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(member) || NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(member))) {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle(member.getEffectiveName() + "'s runs quota")
+                    .setThumbnail(member.getUser().getAvatarUrl())
+                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false)
+                    .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
 
-        Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
+            Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
+        } else if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY)) {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle(member.getEffectiveName() + "'s assist quota")
+                    .setThumbnail(member.getUser().getAvatarUrl())
+                    .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
+
+            Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
+        } else if (Rank.getHighestRank(member).isAtLeast(Rank.ALMOST_RL)) {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            embedBuilder.setTitle(member.getEffectiveName() + "'s run quota")
+                    .setThumbnail(member.getUser().getAvatarUrl())
+                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false)
+                    .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
+
+            Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
+        }
 
     }
 
