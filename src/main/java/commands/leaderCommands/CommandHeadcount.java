@@ -32,40 +32,9 @@ public class CommandHeadcount extends Command {
             return;
         }
 
-        String removePrefix = "";
-        switch (Rank.getHighestRank(member)){
-            case OWNER:
-                removePrefix = "!!";
-                break;
-            case ADMIN:
-                removePrefix = "!";
-                break;
-            case HEAD_RL:
-                removePrefix = "\"";
-                break;
-            case EX_RL:
-                removePrefix = "$";
-                break;
-            case RL:
-                removePrefix = "'";
-                break;
-            case ALMOST_RL:
-                removePrefix = "()";
-                break;
-            case TRIAL_RL:
-                removePrefix = ")";
-                break;
-            case OFFICER:
-                removePrefix = "#";
-                break;
-            case SECURITY:
-                removePrefix = "*";
-                break;
-
-        }
 
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setAuthor(StringUtils.replace(member.getEffectiveName(), removePrefix, "", 1) + " HAS STARTED A HEAD COUNT", null, member.getUser().getAvatarUrl())
+        embedBuilder.setAuthor(Utils.toAlphaNumeric(member.getEffectiveName()) + " HAS STARTED A HEAD COUNT", null, member.getUser().getAvatarUrl())
                 .setDescription("Please react if you are interested in joining the raid, or if you have a key!");
 
         Message hcMessage = Utils.sendMessageWithEmbed(NestBot.getGuild().getTextChannelById(Constants.RAID_CHANNEL), "@here", embedBuilder);

@@ -17,8 +17,11 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import main.RaidHotSwap;
 
+import static main.RaidHotSwap.setRaid;
 import static raids.RaidHub.RaidType;
+import static raids.RaidHub.getRaid;
 
 /**
  * The base class for a nest run or "raid". Everything will be handled here.
@@ -52,6 +55,7 @@ public class Raid {
     private ScheduledFuture<?> countdownTimer;
     private final Long COUNTDOWN_INTERVAL = 5L;
     private final ScheduledExecutorService TIMER = new ScheduledThreadPoolExecutor(2);
+    private Color AfkColor;
 
 
     public Raid(Member leader, int size, int time, String location, RaidType raidType) {
@@ -73,6 +77,7 @@ public class Raid {
         this.failed = false;
         this.isFullSkipped = false;
         this.raidActive = false;
+        this.AfkColor = Color.decode(RaidLeaderPrefs.getColorPreference(leader.getId()));
         raidMsg.delete().queue();
 
         //reset the lists of users that reacted to get location so that again 3 people can react and get location
@@ -125,23 +130,34 @@ public class Raid {
         String quota = "ARL_QUOTA";
 
         if (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(leader)){
-            quota = "EXRL_QUOTA";
+            if (this.raidType.equals(RaidType.EXRL_RAID)) {
+                quota = "EXRL_QUOTA";
+            } else {
+                quota = "RL_QUOTA";
+            }
         } else if (NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(leader)){
             quota = "RL_QUOTA";
         }
 
         StatsJson.incrementQuota(leader.getId(), quota, 1L);
+
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
+
     }
+
 
     public void startRaid() {
         this.raidActive = true; //Activate the raid
         this.countdown = 0; //Ensure timer is at zero in case a manual start for a timed raid.
         this.startTime = System.currentTimeMillis();
 
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
+
         Role eligibleRole = NestBot.getGuild().getRoleById(Constants.VERIFIED);
 
         if (this.raidType.equals(RaidType.EXRL_RAID)) {
             eligibleRole = NestBot.getGuild().getRoleById(Constants.EXTERMINATOR);
+
         }
 
         Utils.updateChannelPerms(raidRoom, eligibleRole, EnumSet.noneOf(Permission.class), EnumSet.of(Permission.VOICE_CONNECT));
@@ -149,7 +165,7 @@ public class Raid {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(leader.getEffectiveName() + "'s raid has begun!");
         embedBuilder.setThumbnail(leader.getUser().getAvatarUrl());
-        embedBuilder.setColor(new Color(255, 0, 0));
+        embedBuilder.setColor(new Color(255,0,0));
         embedBuilder.setDescription("Please wait until another leader begins a raid!");
         raidMsg = raidMsg.editMessage(embedBuilder.build()).complete();
 
@@ -169,6 +185,8 @@ public class Raid {
                 raidRoom.getGuild().kickVoiceMember(member).queue();
             }
         });
+
+
     }
 
     public void abortRaid() {
@@ -184,11 +202,13 @@ public class Raid {
         embedBuilder.setDescription("The raid has been aborted as nobody is left in the dungeon to complete it!");
         embedBuilder.setFooter("Awaiting raid leader's decision.");
         raidMsg.editMessage(embedBuilder.build()).submit();
+
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
+
     }
 
     public void completeRaid(boolean newRun, int playersLeft) {
         this.raidActive = false;
-        raidRoom.getMembers().stream().forEach(member -> StatsJson.addCompletedRaid(member.getId()));
         FeedbackHub.activeFeedback.add(new LeaderFeedback(leader, raidRoom.getMembers()));
         logRaid("success");
 
@@ -204,6 +224,9 @@ public class Raid {
             TIMER.schedule(this::initializeRaid, 20L, TimeUnit.SECONDS);
         else
             TIMER.schedule(this::endRaid, 20L, TimeUnit.SECONDS);
+
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
+
     }
 
     /**
@@ -213,38 +236,7 @@ public class Raid {
     public void logRaid(String status) {
         String playerNames = "";
         for (Member member : getRaidRoom().getMembers()){
-            String removePrefix = "";
-            switch (Rank.getHighestRank(member)){
-                case OWNER:
-                    removePrefix = "!!";
-                    break;
-                case ADMIN:
-                    removePrefix = "!";
-                    break;
-                case HEAD_RL:
-                    removePrefix = "\"";
-                    break;
-                case EX_RL:
-                    removePrefix = "$";
-                    break;
-                case RL:
-                    removePrefix = "'";
-                    break;
-                case ALMOST_RL:
-                    removePrefix = "()";
-                    break;
-                case TRIAL_RL:
-                    removePrefix = ")";
-                    break;
-                case OFFICER:
-                    removePrefix = "#";
-                    break;
-                case SECURITY:
-                    removePrefix = "*";
-                    break;
-
-            }
-            playerNames += ", " + StringUtils.replace(member.getEffectiveName(), removePrefix, "", 1);
+            playerNames += ", " + Utils.toAlphaNumeric(member.getEffectiveName());
         }
 
         playerNames = playerNames.replaceFirst(", ", "");
@@ -264,11 +256,12 @@ public class Raid {
         for (int i = 0; i < nestReactions.size(); i++) {
             User user = nestReactions.get(i);
             if (!user.isBot()) {
-                if ((nestUsers.length() + user.getAsMention().length()) >= 1000){
-                    nestUsers += "And " + (nestReactions.size() - i - 1) + " others...";
-                } else {
-                    nestUsers += user.getAsMention() + "\n";
-                }
+                 StatsJson.addCompletedRaid(user.getId());
+                 nestUsers += user.getAsMention() + "\n";
+                    if ((nestUsers.length() + user.getAsMention().length()) >= 750){
+                        nestUsers += "And " + (nestReactions.size() - i - 1) + " others...";
+                        break;
+                     }
             }
         }
         String nestKeyUsers = "";
@@ -295,6 +288,20 @@ public class Raid {
                 }
             }
         }
+
+        String rusherUsers = "";
+        List<User> rusherReactions = raidMsg.retrieveReactionUsers(Emote.RUSHER.getEmote()).complete();
+        for (int i = 0; i < rusherReactions.size(); i++) {
+            User user = rusherReactions.get(i);
+            if (!user.isBot()) {
+                if ((rusherUsers.length() + user.getAsMention().length()) >= 1000){
+                    rusherUsers += "And " + (rusherReactions.size() - i - 1) + " others...";
+                } else {
+                    rusherUsers += user.getAsMention() + "\n";
+                }
+            }
+        }
+
         String priestUsers = "";
         List<User> priestReactions = raidMsg.retrieveReactionUsers(Emote.PRIEST.getEmote()).complete();
         for (int i = 0; i < priestReactions.size(); i++) {
@@ -384,20 +391,25 @@ public class Raid {
         for (int i = 0; i < assistReactions.size(); i++) {
             User user = assistReactions.get(i);
             if (!user.isBot()) {
-                String Assists = "SEC_ASSISTS";
-                    if (NestBot.getGuild().getMembersWithRoles(Rank.OFFICER.getRole()).contains(user)){
-                        Assists = "OFFICER_ASSISTS";
-                        if (NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(user)){
-                            Assists = "ARL_ASSISTS";
-                        } if (NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(user)){
-                            Assists = "RL_ASSISTS";
-                            if (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(user)){
-                                Assists = "EXRL_ASSISTS";
+                for (Member voiceMember : raidRoom.getMembers()) {
+                    if (voiceMember.getUser() == user){
+                        String Assists = "SEC_ASSISTS";
+                        if (NestBot.getGuild().getMembersWithRoles(Rank.OFFICER.getRole()).contains(user)) {
+                            Assists = "OFFICER_ASSISTS";
+                            if (NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(user)) {
+                                Assists = "ARL_ASSISTS";
+                                if (NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(user)) {
+                                    Assists = "RL_ASSISTS";
+                                    if (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(user)) {
+                                        Assists = "EXRL_ASSISTS";
+                                    }
+                                }
                             }
                         }
+                        StatsJson.incrementAssists(user.getId(), Assists, 1L);
+                        assistUsers += user.getAsMention() + "\n";
                     }
-                    StatsJson.incrementAssists(user.getId(), Assists, 1L);
-             assistUsers += user.getAsMention() + "\n";
+                }
             }
         }
         String dungeonUsers = "";
@@ -428,6 +440,7 @@ public class Raid {
         embedBuilder.addField(Emote.NEST.display(), nestUsers.isEmpty() ? "No users" : nestUsers, true);
         embedBuilder.addField(Emote.NEST_KEY.display(), nestKeyUsers.isEmpty() ? "No users" : nestKeyUsers, true);
         embedBuilder.addField(Emote.QOT.display(), qotUsers.isEmpty() ? "No users" : qotUsers, true);
+        embedBuilder.addField(Emote.RUSHER.display(), rusherUsers.isEmpty() ? "No users" : rusherUsers, true);
         embedBuilder.addField(Emote.PRIEST.display(), priestUsers.isEmpty() ? "No users" : priestUsers, true);
         embedBuilder.addField(Emote.WARRIOR.display(), warriorUsers.isEmpty() ? "No usders" : warriorUsers, true);
         embedBuilder.addField(Emote.PALLY.display(), pallyUsers.isEmpty() ? "No users" : pallyUsers, true);
@@ -441,6 +454,7 @@ public class Raid {
 
 
         Utils.sendEmbed(NestBot.getGuild().getTextChannelById(Constants.RUN_LOGS), embedBuilder);
+        commands.adminCommands.CommandQuotaEmbed.updateQuota();
     }
 
     public void endRaid() {
@@ -452,12 +466,15 @@ public class Raid {
 
         TIMER.schedule(() -> raidRoom.delete().submit(), 1L, TimeUnit.MINUTES);
         TIMER.shutdown();
+
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
+
     }
 
     private EmbedBuilder createRaidMsg() {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setThumbnail(leader.getUser().getAvatarUrl());
-        embedBuilder.setColor(new Color(0, 255, 0));
+        embedBuilder.setColor(AfkColor);
 
         if (raidType.equals(RaidType.EXRL_RAID)){
             embedBuilder.setTitle(leader.getEffectiveName() + " has started an Exterminator Fullskip Raid!");
@@ -494,6 +511,7 @@ public class Raid {
             embedBuilder.addField("If you are bringing a PALADIN react with", Emote.PALLY.display(), true);
             embedBuilder.addField("If you are bringing a KNIGHT react with", Emote.KNIGHT.display(), true);
             embedBuilder.addField("If you are bringing a PURI react with", Emote.PURI.display(), true);
+            embedBuilder.addField("If you are a LEADER or SECURITY assisting in the run, react with", Emote.ASSIST.display(), true);
         } else if (raidType.equals(RaidType.WR_RAID)){
             for (Emote emote : wrRaidEmotes){
                 Utils.addReaction(raidMsg, emote.getEmote());
@@ -501,14 +519,34 @@ public class Raid {
             embedBuilder.addField("If you are attending the run, please react with", Emote.NEST.display(), true);
             embedBuilder.addField("If you are bringing a KEY react with", Emote.NEST_KEY.display(), true);
             embedBuilder.addField("If you are bringing a QOT react with", Emote.QOT.display(), true);
+            if (RaidLeaderPrefs.getRusherPreference(leader.getId()) == true) {
+                embedBuilder.addField("If you are rushing and have the ZOOMER role react with", Emote.RUSHER.display(), true);
+            }
             embedBuilder.addField("If you are bringing a PRIEST react with", Emote.PRIEST.display(), true);
             embedBuilder.addField("If you are bringing a WARRIOR react with", Emote.WARRIOR.display(), true);
             embedBuilder.addField("If you are bringing a PALADIN react with", Emote.PALLY.display(), true);
             embedBuilder.addField("If you are bringing a KNIGHT react with", Emote.KNIGHT.display(), true);
             embedBuilder.addField("If you are bringing a MYSTIC react with", Emote.MYSTIC.display(), true);
             embedBuilder.addField("If you are bringing a SLOWING ABILITY react with", Emote.SLOW.display(), true);
+            embedBuilder.addField("If you are a LEADER or SECURITY assisting in the run, react with", Emote.ASSIST.display(), true);
+        } else if (RaidLeaderPrefs.getRusherPreference(leader.getId()) == true){
+            for (Emote emote : defaulRaidEmotesRush){
+                Utils.addReaction(raidMsg, emote.getEmote());
+            }
+            embedBuilder.addField("If you are attending the run, please react with", Emote.NEST.display(), true);
+            embedBuilder.addField("If you are bringing a KEY react with", Emote.NEST_KEY.display(), true);
+            embedBuilder.addField("If you are bringing a QOT react with", Emote.QOT.display(), true);
+            embedBuilder.addField("If you are rushing and have the ZOOMER role react with", Emote.RUSHER.display(), true);
+            embedBuilder.addField("If you are bringing a PRIEST react with", Emote.PRIEST.display(), true);
+            embedBuilder.addField("If you are bringing a WARRIOR react with", Emote.WARRIOR.display(), true);
+            embedBuilder.addField("If you are bringing a PALADIN react with", Emote.PALLY.display(), true);
+            embedBuilder.addField("If you are bringing a KNIGHT react with", Emote.KNIGHT.display(), true);
+            embedBuilder.addField("If you are bringing a MYSTIC react with", Emote.MYSTIC.display(), true);
+            embedBuilder.addField("If you are bringing a SLOWING ABILITY react with", Emote.SLOW.display(), true);
+            embedBuilder.addField("If you are a nitro booster, and want early location, react with", Emote.NITRO.display(), true);
+            embedBuilder.addField("If you are a LEADER or SECURITY assisting in the run, react with", Emote.ASSIST.display(), true);
         } else {
-            for (Emote emote : defaulRaidEmotes){
+            for (Emote emote : defaulRaidEmotesNoRush){
                 Utils.addReaction(raidMsg, emote.getEmote());
             }
             embedBuilder.addField("If you are attending the run, please react with", Emote.NEST.display(), true);
@@ -521,7 +559,7 @@ public class Raid {
             embedBuilder.addField("If you are bringing a MYSTIC react with", Emote.MYSTIC.display(), true);
             embedBuilder.addField("If you are bringing a SLOWING ABILITY react with", Emote.SLOW.display(), true);
             embedBuilder.addField("If you are a nitro booster, and want early location, react with", Emote.NITRO.display(), true);
-            embedBuilder.addField("If you are a leader or security assisting in the run, react with", Emote.ASSIST.display(), true);
+            embedBuilder.addField("If you are a LEADER or SECURITY assisting in the run, react with", Emote.ASSIST.display(), true);
         }
 
         if (countdown < 0)
@@ -544,6 +582,7 @@ public class Raid {
      */
     public void setLocation(String location, boolean notify) {
         this.location = location;
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
         if (notify) {
             Stream.of(nestKeyReactions, eventKeyReactions, knightReactions, mysticReactions, puriReactions, nitroReactions, assistReactions)
                     .flatMap(Collection::stream)
@@ -559,11 +598,11 @@ public class Raid {
 
     /**
      * Starts the full skip poll in the Radeaid Channel. If minutes <= 0 it forces the full skip.
-     * @param minutes
+     * @param seconds
      */
-    public void initiateFullSkip(int minutes) {
+    public void initiateFullSkip(int seconds) {
 
-        if (minutes > 0) {
+        if (seconds >= 15) {
             Message fullSkipPoll =  Utils.sendEmbed(NestBot.getGuild().getTextChannelById(raidType.getRaidChannelId()), new EmbedBuilder().setTitle("Full Skip Poll")
                     .setDescription(leader.getEffectiveName() + " wants to do a fullskip, do you want to?"));
 
@@ -603,9 +642,11 @@ public class Raid {
                                 .addField("👎", String.valueOf(noVotes), true).build()).queue();
                     }
 
-                    finalFullSkipPoll.delete().queueAfter(2, TimeUnit.MINUTES);
+                    finalFullSkipPoll.delete().queueAfter(2, TimeUnit.SECONDS);
                 }
-            }, TimeUnit.MINUTES.toMillis(minutes));
+            }, TimeUnit.SECONDS.toMillis(seconds));
+        } else if (seconds < 15 && seconds > 0){
+            Utils.sendPM(leader.getUser(), "The fullskip poll must be a minimum of 15 seconds");
         } else {
             fullSkip();
         }
@@ -615,6 +656,7 @@ public class Raid {
     private void fullSkip(){
         isFullSkipped = true;
         raidMsg.editMessage(raidMsg.getContentRaw()).embed(new EmbedBuilder(raidMsg.getEmbeds().get(0)).setTitle("THIS RAID IS A FULL SKIP").build()).queue();
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
     }
 
     //changes the Voice Channel cap for the Raid Room. Used when -raid <size> is used
@@ -628,6 +670,7 @@ public class Raid {
     public void setTimer(int time){
         this.countdownTime = time;
         this.countdown = time;
+        setRaid(leader.getId(), raidRoom.toString(), raidMsg.getId(), (long) countdownTime, location, raidType.toString(), raidActive, finished, failed, isFullSkipped);
     }
 
     private void ping() {
@@ -637,10 +680,11 @@ public class Raid {
     }
 
     //Emotes that will be added as Reaction for each Raid Type. (e.g. EVENT_RAID has other Reactions than DEFAULT_RAID)
-    public static Emote[] defaulRaidEmotes = new Emote[]{
+    public Emote[] defaulRaidEmotesRush = new Emote[]{
         Emote.NEST,
         Emote.NEST_KEY,
         Emote.QOT,
+        Emote.RUSHER,
         Emote.PRIEST,
         Emote.WARRIOR,
         Emote.PALLY,
@@ -651,17 +695,33 @@ public class Raid {
         Emote.NITRO,
         Emote.ASSIST
     };
+    public Emote[] defaulRaidEmotesNoRush = new Emote[]{
+            Emote.NEST,
+            Emote.NEST_KEY,
+            Emote.QOT,
+            Emote.PRIEST,
+            Emote.WARRIOR,
+            Emote.PALLY,
+            Emote.KNIGHT,
+            Emote.MYSTIC,
+            Emote.PURI,
+            Emote.SLOW,
+            Emote.NITRO,
+            Emote.ASSIST
+    };
     public static Emote[] wrRaidEmotes = new Emote[]{
         Emote.NEST,
         Emote.NEST_KEY,
         Emote.QOT,
+        Emote.RUSHER,
         Emote.PRIEST,
         Emote.WARRIOR,
         Emote.PALLY,
         Emote.KNIGHT,
         Emote.MYSTIC,
         Emote.PURI,
-        Emote.SLOW
+        Emote.SLOW,
+        Emote.ASSIST
     };
     public static Emote[] eventRaidEmotes = new Emote[]{
         Emote.DUNGEON,
@@ -671,7 +731,8 @@ public class Raid {
         Emote.WARRIOR,
         Emote.PALLY,
         Emote.KNIGHT,
-        Emote.PURI
+        Emote.PURI,
+        Emote.ASSIST
     };
 
 }

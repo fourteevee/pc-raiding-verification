@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public enum Rank {
     DEFAULT(null, false),
     VERIFIED(Long.parseLong((String) Config.get("VERIFIED")), false),
+    ZOOMER(Long.parseLong((String) Config.get("ZOOMER")), false),
     TRIAL_RL(Long.parseLong((String) Config.get("TRIAL_RL")), true),
     ALMOST_RL(Long.parseLong((String) Config.get("ALMOST_RL")), true),
     RL(Long.parseLong((String) Config.get("RL")), true),

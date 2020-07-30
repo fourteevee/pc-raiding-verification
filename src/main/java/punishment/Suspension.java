@@ -2,6 +2,7 @@ package punishment;
 
 import lombok.Getter;
 import main.Constants;
+import main.PunishmentLogs;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import utils.Utils;
@@ -30,6 +31,7 @@ public class Suspension {
         this.reason = reason;
         this.displayDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
 
+        PunishmentLogs.logPunishment(recipient.getId(), "suspension", punisher.getName(), reason, displayDate);
         initializeSuspension();
     }
 

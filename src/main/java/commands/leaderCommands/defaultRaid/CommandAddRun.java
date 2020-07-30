@@ -34,19 +34,26 @@ public class CommandAddRun extends Command {
         String quota = "ARL_QUOTA";
 
         if (msg.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(msg.getMember())){
-            quota = "EXRL_QUOTA";
+            quota = "RL_QUOTA";
         } else if (msg.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(msg.getMember())){
             quota = "RL_QUOTA";
         }
 
         if (args.length == 1){
             if (NumberUtils.isDigits(args[0])){
-                StatsJson.incrementQuota(msg.getMember().getId(), quota, Long.parseLong(args[0]));
-                Utils.sendPM(msg.getAuthor(), args[0] + " runs have been added");
-                return;
+                long runs = Long.parseLong(args[0]);
+                if (runs <= 5) {
+                    StatsJson.incrementQuota(msg.getMember().getId(), quota, Long.parseLong(args[0]));
+                    Utils.sendPM(msg.getAuthor(), args[0] + " runs have been added");
+                    return;
+                } else if (runs > 5) {
+                    Utils.sendPM(msg.getAuthor(), "Please do not add more than 5 runs at a time");
+                    return;
+                }
             }
         }
 
+        raid.logRaid("success");
         StatsJson.incrementQuota(msg.getMember().getId(), quota, 1);
         Utils.sendPM(msg.getAuthor(), "Run has been added");
     }

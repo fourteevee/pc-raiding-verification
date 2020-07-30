@@ -39,6 +39,7 @@ public class CommandStartRaid extends Command {
                     try {
                         String location = args[0];
                         raid.setLocation(location, false);
+                        raid.logRaid("success");
                         raid.initializeRaid();
                         return;
                     } catch (Exception ex) {
@@ -54,6 +55,7 @@ public class CommandStartRaid extends Command {
                         int size = Integer.parseInt(args[1]);
                         raid.setVoiceCap(size);
                         raid.setLocation(location, false);
+                        raid.logRaid("success");
                         raid.initializeRaid();
                         return;
                     } catch (Exception ex) {
@@ -71,6 +73,7 @@ public class CommandStartRaid extends Command {
                         raid.setVoiceCap(size);
                         raid.setLocation(location, false);
                         raid.setTimer(time);
+                        raid.logRaid("success");
                         raid.initializeRaid();
                         return;
                     } catch (Exception ex) {

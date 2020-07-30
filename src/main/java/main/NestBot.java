@@ -12,6 +12,8 @@ import commands.leaderCommands.eventRaid.CommandEventHeadcount;
 import commands.leaderCommands.eventRaid.CommandEventStartRaid;
 import commands.leaderCommands.exrlRaid.CommandExHeadcount;
 import commands.leaderCommands.exrlRaid.CommandExStartRaid;
+import commands.leaderCommands.rlPrefs.CommandSetColor;
+import commands.leaderCommands.rlPrefs.CommandToggleRushers;
 import commands.leaderCommands.wrRaid.CommandWrHeadcount;
 import commands.leaderCommands.wrRaid.CommandWrStartRaid;
 import commands.miscCommands.*;
@@ -20,10 +22,14 @@ import listeners.MessageListener;
 import listeners.ReactionListener;
 import listeners.ReadyListener;
 import lombok.Getter;
+import moderation.CommandCleanUp;
+import moderation.CommandInRole;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
+import moderation.CommandPunishmentHistory;
+import moderation.CommandUserInfo;
 import punishment.SuspensionHub;
 import raids.FeedbackHub;
 import raids.RaidHub;
@@ -120,6 +126,14 @@ public class NestBot {
         commands.add(new CommandVerifyMessage());
         commands.add(new CommandExVerifyMessage());
         commands.add(new CommandQuota());
+        commands.add(new CommandQuotaEmbed());
         commands.add(new CommandAddRun());
+        commands.add(new CommandToggleRushers());
+        commands.add(new CommandPunishmentHistory());
+        commands.add(new CommandUserInfo());
+        commands.add(new CommandSetColor());
+        commands.add(new CommandInRole());
+        commands.add(new CommandPromote());
+        commands.add(new CommandCleanUp());
     }
 }

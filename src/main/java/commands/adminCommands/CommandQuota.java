@@ -35,27 +35,31 @@ public class CommandQuota extends Command {
 
         Member member = msg.getMentionedMembers().get(0);
 
-        if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && (NestBot.getGuild().getMembersWithRoles(Rank.EX_RL.getRole()).contains(member)|| NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(member) || NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(member))) {
+         if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && (NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(member) || NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(member))) {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(member.getEffectiveName() + "'s runs quota")
                     .setThumbnail(member.getUser().getAvatarUrl())
-                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false)
-                    .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
-
+                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false);
+             if (Rank.getHighestRank(member).isAtLeast(Rank.EX_RL)) {
+                 embedBuilder.addField("EXQUOTA", String.valueOf(StatsJson.getQuota(member.getId(),"EXRL_QUOTA")), true);
+             }
+             embedBuilder.addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
             Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
-        } else if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY)) {
+        }  else if (Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && !(NestBot.getGuild().getMembersWithRoles(Rank.ALMOST_RL.getRole()).contains(member) || NestBot.getGuild().getMembersWithRoles(Rank.RL.getRole()).contains(member))) {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(member.getEffectiveName() + "'s assist quota")
                     .setThumbnail(member.getUser().getAvatarUrl())
                     .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
-
             Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
         } else if (Rank.getHighestRank(member).isAtLeast(Rank.ALMOST_RL)) {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setTitle(member.getEffectiveName() + "'s run quota")
                     .setThumbnail(member.getUser().getAvatarUrl())
-                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false)
-                    .addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
+                    .addField("QUOTA", String.valueOf(StatsJson.getAllQuota(member.getId())), false);
+             if (Rank.getHighestRank(member).isAtLeast(Rank.EX_RL)) {
+                 embedBuilder.addField("EXQUOTA", String.valueOf(StatsJson.getQuota(member.getId(),"EXRL_QUOTA")), true);
+             }
+                    embedBuilder.addField("ASSISTS", String.valueOf(StatsJson.getAllAssists(member.getId())), false);
 
             Utils.sendEmbed(msg.getTextChannel(), embedBuilder);
         }

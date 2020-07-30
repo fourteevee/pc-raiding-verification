@@ -46,12 +46,14 @@ public class Config {
                 conf.addProperty("FEEDBACK_LOGS", "");
                 conf.addProperty("SUSPENSION_LOGS", "");
                 conf.addProperty("RUN_LOGS", "");
+                conf.addProperty("VOTE_LOGS", "");
                 conf.addProperty("VERIFICATION_LOGS", "");
                 conf.addProperty("RAID_LEADER_VOTE", "");
                 conf.addProperty("LOOTS", "");
                 conf.addProperty("LOUNGE_VOICE", "");
                 conf.addProperty("RAID_CATEGORY", "");
                 conf.addProperty("FEEDBACK_CATEGORY", "");
+                conf.addProperty("RUN_QUOTAS", "");
 
                 conf.addProperty("SUSPENDED", "");
                 conf.addProperty("VERIFIED", "");
@@ -64,6 +66,7 @@ public class Config {
                 conf.addProperty("NEST_KEY", "");
                 conf.addProperty("EVENT_KEY", "");
                 conf.addProperty("QOT", "");
+                conf.addProperty("RUSHER", "");
                 conf.addProperty("PRIEST", "");
                 conf.addProperty("PALLY", "");
                 conf.addProperty("WARRIOR", "");
@@ -74,6 +77,7 @@ public class Config {
                 conf.addProperty("NITRO", "");
                 conf.addProperty("ASSIST", "");
 
+                conf.addProperty("ZOOMER", "");
                 conf.addProperty("TRIAL_RL", "");
                 conf.addProperty("ALMOST_RL", "");
                 conf.addProperty("RL", "");

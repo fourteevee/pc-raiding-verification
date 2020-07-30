@@ -15,6 +15,7 @@ public enum Emote {
     NEST_KEY(":NestKey:", Long.parseLong((String) Config.get("NEST_KEY"))),
     EVENT_KEY(":EventKey:", Long.parseLong((String) Config.get("EVENT_KEY"))),
     QOT(":QoT:", Long.parseLong((String) Config.get("QOT"))),
+    RUSHER(":Zoomer:", Long.parseLong((String) Config.get("RUSHER"))),
     PRIEST(":Priest:", Long.parseLong((String) Config.get("PRIEST"))),
     PALLY(":Paladin:", Long.parseLong((String) Config.get("PALLY"))),
     WARRIOR(":Warrior:", Long.parseLong((String) Config.get("WARRIOR"))),

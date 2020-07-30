@@ -280,4 +280,22 @@ public class Utils {
         }
         return jarFile.getParentFile().getAbsolutePath();
     }
+    public static String toAlphaNumeric(String string) {
+        String newString = StringUtils.remove(string, "*");
+        newString = StringUtils.remove(newString, "$");
+        newString = StringUtils.remove(newString, "'");
+        newString = StringUtils.remove(newString, "(");
+        newString = StringUtils.remove(newString, ")");
+        newString = StringUtils.remove(newString, "!");
+        newString = StringUtils.remove(newString, "#");
+        newString = StringUtils.remove(newString, "^");
+        newString = StringUtils.remove(newString, "%");
+        newString = StringUtils.remove(newString, "@");
+        newString = StringUtils.remove(newString, "-");
+        newString = StringUtils.remove(newString, ">");
+        newString = StringUtils.remove(newString, "<");
+        newString = StringUtils.remove(newString, "?");
+        return newString;
+    }
 }
+

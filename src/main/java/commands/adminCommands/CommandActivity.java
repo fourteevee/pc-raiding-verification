@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.StringUtils;
 import utils.Utils;
 
-import java.util.EnumSet;
 
 public class CommandActivity extends Command {
     public CommandActivity() {

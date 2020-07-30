@@ -19,6 +19,7 @@ public class Constants {
     public static final Long FEEDBACK_LOGS =        Long.parseLong((String) Config.get("FEEDBACK_LOGS"));
     public static final Long SUSPENSION_LOGS =      Long.parseLong((String) Config.get("SUSPENSION_LOGS"));
     public static final Long RUN_LOGS =             Long.parseLong((String) Config.get("RUN_LOGS"));
+    public static final Long RUN_QUOTAS =             Long.parseLong((String) Config.get("RUN_QUOTAS"));
     public static final Long VERIFICATION_LOGS =    Long.parseLong((String) Config.get("VERIFICATION_LOGS"));
     public static final Long RAID_LEADER_VOTE =     Long.parseLong((String) Config.get("RAID_LEADER_VOTE"));
     public static final Long LOOTS =                Long.parseLong((String) Config.get("LOOTS"));
@@ -39,5 +40,7 @@ public class Constants {
     public static final Long EXTERMINATOR  =        Long.parseLong((String) Config.get("EXTERMINATOR"));
     public static final Long WR_RAIDER  =        Long.parseLong((String) Config.get("WR_RAIDER"));
     public static final Long EVENT_RAIDER  =        Long.parseLong((String) Config.get("EVENT_RAIDER"));
+    public static final Long TRIAL_RL  =        Long.parseLong((String) Config.get("TRIAL_RL"));
+    public static final Long ALMOST_RL  =        Long.parseLong((String) Config.get("ALMOST_RL"));
 
 }

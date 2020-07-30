@@ -269,6 +269,29 @@ public class StatsJson {
                 JSONObject userObj = (JSONObject) obj.get(userId);
                 JSONObject runQuota = (JSONObject) userObj.get("runQuota");
 
+                return (long) runQuota.get("ARL_QUOTA") + (long) runQuota.get("RL_QUOTA");
+
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        } catch ( Exception ex ) {
+            ex.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public static long getTotalQuota(String userId){
+        createUser(userId);
+        try {
+            JSONParser parser = new JSONParser();
+
+            try ( Reader reader = new FileReader(path) ) {
+
+                JSONObject obj = (JSONObject) parser.parse(reader);
+
+                JSONObject userObj = (JSONObject) obj.get(userId);
+                JSONObject runQuota = (JSONObject) userObj.get("runQuota");
+
                 return (long) runQuota.get("ARL_QUOTA") + (long) runQuota.get("RL_QUOTA") + (long) runQuota.get("EXRL_QUOTA");
 
             } catch ( IOException e ) {

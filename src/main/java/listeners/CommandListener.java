@@ -1,17 +1,15 @@
 package listeners;
 
-import commands.CommandHub;
 import commands.miscCommands.CommandExVerify;
 import commands.miscCommands.CommandVerify;
-import main.Config;
 import main.Constants;
 import main.NestBot;
 import main.Rank;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.apache.commons.lang.ArrayUtils;
+import moderation.CommandPunishmentHistory;
+import moderation.CommandUserInfo;
 import utils.Utils;
 
 import java.util.Arrays;
@@ -61,6 +59,11 @@ public class CommandListener extends ListenerAdapter {
                 if (NestBot.commands.getCommand(alias) instanceof CommandExVerify && (event.getChannel() != NestBot.getGuild().getTextChannelById(Constants.EXVERIFY_CHANNEL))) {
                     Utils.sendPM(event.getAuthor(), "Please verify in the verification channel!");
                     event.getMessage().delete().queue();
+                    return;
+                }
+
+                if (NestBot.commands.getCommand(alias) instanceof CommandUserInfo || NestBot.commands.getCommand(alias) instanceof CommandPunishmentHistory) {
+                    NestBot.commands.getCommand(alias).execute(event.getMessage(), alias, args);
                     return;
                 }
 

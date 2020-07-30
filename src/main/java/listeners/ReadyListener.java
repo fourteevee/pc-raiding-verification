@@ -4,17 +4,17 @@ import main.Config;
 import main.NestBot;
 import main.Rank;
 import main.StatsJson;
-import net.dv8tion.jda.api.entities.*;
-import org.apache.commons.lang3.StringUtils;
-import stats.Verification;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.commons.lang3.StringUtils;
 import punishment.BlacklistManager;
-import utils.Utils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static java.util.Calendar.DAY_OF_WEEK;
 
@@ -83,7 +83,7 @@ public class ReadyListener extends ListenerAdapter {
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY)){
                         long exrl_quota = StatsJson.getAllQuota(member.getId());
                         if (exrl_quota < Long.parseLong((String) Config.get("EXRL_QUOTA"))){
-                            quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [EXRL] " + member.getAsMention() + "** hasn't completed " + Config.get("EXRL_QUOTA") + " runs!** Runs completed: " + exrl_quota).queue();
+                            quotaChannel.sendMessage(" [EXRL] " + member.getAsMention() + "** hasn't completed " + Config.get("EXRL_QUOTA") + " runs!** Runs completed: " + exrl_quota).queue();
                         }
                     }
                 }
@@ -92,7 +92,7 @@ public class ReadyListener extends ListenerAdapter {
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && !member.getRoles().contains(Rank.EX_RL.getRole())){
                         long rl_quota = StatsJson.getAllQuota(member.getId());
                         if (rl_quota < Long.parseLong((String) Config.get("RL_QUOTA"))){
-                            quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [RL] " + member.getAsMention() + "** hasn't completed " + Config.get("RL_QUOTA") + " runs!** Runs completed: " + rl_quota).queue();
+                            quotaChannel.sendMessage(" [RL] " + member.getAsMention() + "** hasn't completed " + Config.get("RL_QUOTA") + " runs!** Runs completed: " + rl_quota).queue();
                         }
                     }
                 }
@@ -101,7 +101,7 @@ public class ReadyListener extends ListenerAdapter {
                     if (!Rank.getHighestRank(member).isAtLeast(Rank.SECURITY) && !member.getRoles().contains(Rank.EX_RL.getRole()) && !member.getRoles().contains(Rank.RL.getRole())){
                         long arl_quota = StatsJson.getAllQuota(member.getId());
                         if (arl_quota < Long.parseLong((String) Config.get("ARL_QUOTA"))){
-                            quotaChannel.sendMessage(Rank.HEAD_RL.getRole().getAsMention() + " [ARL] " + member.getAsMention() + "** hasn't completed " + Config.get("ARL_QUOTA") + " runs!** Runs completed: " + arl_quota).queue();
+                            quotaChannel.sendMessage(" [ARL] " + member.getAsMention() + "** hasn't completed " + Config.get("ARL_QUOTA") + " runs!** Runs completed: " + arl_quota).queue();
                         }
                     }
                 }
